@@ -1,7 +1,10 @@
 package main
 
-import "log"
+import (
+	"time"
+)
 
 func main() {
-	log.Println("collector main")
+	produceTestMessage()
+	time.Sleep(5 * time.Second)
 }
