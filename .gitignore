@@ -1,0 +1,12 @@
+# Binaries
+*.exe
+*.out
+*.test
+
+# Build
+/bin/
+/vendor/
+
+# IDE/editor files
+.vscode/
+.idea/
