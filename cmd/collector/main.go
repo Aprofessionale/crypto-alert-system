@@ -1,10 +1,14 @@
 package main
 
 import (
+	"context"
 	"time"
 )
 
 func main() {
-	produceTestMessage()
-	time.Sleep(5 * time.Second)
+	for {
+		price := GenerateMockPrice()
+		PublishPrice(context.Background(), price)
+		time.Sleep(2 * time.Second)
+	}
 }
