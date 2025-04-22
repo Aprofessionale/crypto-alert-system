@@ -3,15 +3,11 @@ package collector
 import (
 	"math/rand"
 	"time"
+
+	common "github.com/aprofessionale/crypto-alert-system/internal/common"
 )
 
-type PriceData struct {
-	Symbol string  `json:"symbol"`
-	Price  float64 `json:"price"`
-	Time   int64   `json:"time"`
-}
-
-func GenerateMockPrice() PriceData {
+func GenerateMockPrice() common.PriceData {
 	symbols := []string{"BTC", "ETH"}
 	symbol := symbols[rand.Intn(len(symbols))]
 
@@ -21,7 +17,7 @@ func GenerateMockPrice() PriceData {
 	}
 
 	price := basePrice[symbol] + rand.Float64()*1000 - 500 // +/- 500
-	return PriceData{
+	return common.PriceData{
 		Symbol: symbol,
 		Price:  price,
 		Time:   time.Now().Unix(),

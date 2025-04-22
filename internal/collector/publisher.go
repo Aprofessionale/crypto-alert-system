@@ -5,10 +5,11 @@ import (
 	"encoding/json"
 	"log"
 
+	common "github.com/aprofessionale/crypto-alert-system/internal/common"
 	"github.com/segmentio/kafka-go"
 )
 
-func PublishPrice(ctx context.Context, price PriceData) error {
+func PublishPrice(ctx context.Context, price common.PriceData) error {
 	writer := kafka.NewWriter(kafka.WriterConfig{
 		Brokers:  []string{"localhost:9092"},
 		Topic:    "crypto-prices",
