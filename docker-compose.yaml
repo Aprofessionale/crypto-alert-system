@@ -1,14 +1,18 @@
 services:
   zookeeper:
     image: confluentinc/cp-zookeeper:7.6.0
+    container_name: zookeeper
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
     ports:
       - "2181:2181"
+    mem_limit: 256m
+    restart: unless-stopped
 
   kafka:
     image: confluentinc/cp-kafka:7.6.0
+    container_name: kafka
     depends_on:
       - zookeeper
     ports:
@@ -18,8 +22,15 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_NUM_PARTITIONS: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    mem_limit: 512m
+    restart: unless-stopped
 
   redis:
     image: redis:8.0-rc1-alpine
+    container_name: redis
     ports:
       - "6369:6369"
+    mem_limit: 128m
+    restart: unless-stopped
