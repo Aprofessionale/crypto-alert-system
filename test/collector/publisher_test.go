@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/aprofessionale/crypto-alert-system/cmd/collector"
+	collector "github.com/aprofessionale/crypto-alert-system/cmd/collector"
 )
 
 func TestPublishPrice(t *testing.T) {

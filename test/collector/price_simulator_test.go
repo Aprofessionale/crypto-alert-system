@@ -3,7 +3,7 @@ package collector_test
 import (
 	"testing"
 
-	"github.com/aprofessionale/crypto-alert-system/cmd/collector"
+	collector "github.com/aprofessionale/crypto-alert-system/cmd/collector"
 	"github.com/stretchr/testify/assert"
 )
 
