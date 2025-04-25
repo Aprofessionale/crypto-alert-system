@@ -1,12 +1,37 @@
-# Binaries
+# Binaries for programs and plugins
 *.exe
-*.out
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
 *.test
 
-# Build
-/bin/
-/vendor/
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
 
-# IDE/editor files
-.vscode/
+# Dependency directories (remove the comment below if you do not commit vendered dependencies)
+# vendor/
+
+# Go workspace file
+go.work
+
+# Environment variables file
+.env
+
+# Docker
+docker-compose.override.yml
+
+# IDE settings folder
 .idea/
+.vscode/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db

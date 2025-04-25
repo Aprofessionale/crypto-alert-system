@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.6.0 # Or latest stable
+    hostname: zookeeper
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: confluentinc/cp-kafka:7.6.0 # Or latest stable
+    hostname: kafka
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9093,PLAINTEXT_HOST://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9093,PLAINTEXT_HOST://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1 # Essential for single-node cluster
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0 # Optional: Speeds up consumer start locally
+
+  redis:
+    image: redis:7.2-alpine # Using LTS Alpine version
+    hostname: redis
+    container_name: redis
+    ports:
+      # Map host port 6369 to container's standard Redis port 6379
+      - "6369:6379"
+
+  # --- Go Application Service ---
+  app:
+    build:
+      context: .. # Build from the project root directory
+      dockerfile: deployments/Dockerfile
+    container_name: crypto_alert_app
+    ports:
+      # Map API port (defined by PORT env var) to host port 8080
+      - "8080:${PORT:-8080}" # Use default 8080 if PORT not set
+    environment:
+      # --- Essential minimal variables for now ---
+      - PORT=8080
+      # Connect to redis service name on standard container port 6379
+      - REDIS_ADDR=redis:6379
+      - REDIS_PASSWORD=
+      # Connect to Kafka's internal listener
+      - KAFKA_BROKERS=kafka:9093
+
+    depends_on:
+      - kafka # Ensure kafka/zk are somewhat ready before app starts
+      - redis
