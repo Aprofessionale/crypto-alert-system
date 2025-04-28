@@ -20,7 +20,9 @@ func main() {
 	logger := appLogger.NewLogger()
 
 	defer func() {
-		if err := logger.Sync(); err != nil {
+		// Attempt to sync the logger, log error if it fails
+		if err := logger.Sync(); err != nil && errors.Is(err, syscall.EBADF) && !errors.Is(err, os.ErrInvalid) {
+			// Ignore common errors during shutdown like "invalid argument" or "bad file descriptor"
 			log.Printf("Failed to sync Zap logger: %v", err)
 		}
 	}()
@@ -29,21 +31,18 @@ func main() {
 	if err != nil {
 		logger.Fatal("Failed to load configuration", zap.Error(err))
 	}
-	logger.Info("Configuration loaded successfully", zap.String("port", cfg.Port))
+	logger.Info("Configuration loaded successfully")
 
 	router := api.NewStdLibRouter()
 
 	serverWrapper := api.NewServer(cfg, logger, router)
 
 	serverErrors := make(chan error, 1)
-	var httpServer *http.Server
 
 	go func() {
 		logger.Info("Starting server goroutine . . .")
-		var startErr error
 
-		httpServer, startErr = serverWrapper.Start()
-		serverErrors <- startErr
+		serverErrors <- serverWrapper.Start()
 	}()
 
 	shutdownChannel := make(chan os.Signal, 1)
@@ -65,20 +64,9 @@ func main() {
 		shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
 
-		if httpServer != nil {
-			logger.Info("attempting graceful shutdown of HTTP server . . .")
-			if err := httpServer.Shutdown(shutdownCtx); err != nil {
-				logger.Error("HTTP server graceful shutdown failed", zap.Error(err))
-			} else {
-				logger.Info("HTTP server shutdown complete.")
-			}
-		} else {
-			logger.Warn("HTTP server instance was nil, could not perform graceful shutdown.")
-		}
-
-		<-shutdownCtx.Done()
-		if errors.Is(shutdownCtx.Err(), context.DeadlineExceeded) {
-			logger.Warn("Graceful shutdown deadline exceeded.")
+		if err := serverWrapper.Shutdown(shutdownCtx); err != nil {
+			// Log error, but continue shutdown process
+			logger.Error("HTTP server shutdown error", zap.Error(err))
 		}
 	}
 
