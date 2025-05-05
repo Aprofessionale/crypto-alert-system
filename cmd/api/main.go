@@ -33,7 +33,7 @@ func main() {
 	}
 	logger.Info("Configuration loaded successfully")
 
-	router := api.NewStdLibRouter()
+	router := api.NewRouter()
 
 	serverWrapper := api.NewServer(cfg, logger, router)
 
