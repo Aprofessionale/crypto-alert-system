@@ -1,16 +1,16 @@
 package api
 
 import (
-	"net/http"
-
 	handlers "github.com/aprofessionale/crypto-alert-system/internal/api/handlers"
+
+	"github.com/gin-gonic/gin"
 )
 
-func NewStdLibRouter() *http.ServeMux {
-	mux := http.NewServeMux()
+func NewRouter() *gin.Engine {
+	router := gin.Default()
 
 	// Health check
-	mux.HandleFunc("GET /healthz", handlers.HealthCheckHandler)
+	router.GET("/healthz", handlers.HealthCheckHandler)
 
-	return mux
+	return router
 }
