@@ -29,7 +29,7 @@ func TestSubscribe_Success(t *testing.T) {
 	require.NoError(t, err) // for setup steps
 	bodyReader := bytes.NewBuffer(bodyBytes)
 
-	mockAuthService.On("SubscribeUser", mock.AnythingOfType("*gin.Context"), email).Return(nil).Once()
+	mockAuthService.On("SubscribeUser", mock.Anything, email).Return(nil).Once()
 
 	router := gin.New()
 	router.POST("/auth/subscribe", authHandler.Subscribe)

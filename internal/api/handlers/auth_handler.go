@@ -22,8 +22,8 @@ func (h *AuthHandler) Subscribe(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, ErrorResponse{Error: "Invalid request body: " + err.Error()})
+		return
 	}
-	return
 
 	err := h.authService.SubscribeUser(c.Request.Context(), req.Email)
 	if err != nil {
