@@ -7,23 +7,28 @@ import (
 
 	handlers "github.com/aprofessionale/crypto-alert-system/internal/api/handlers"
 
+	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func TestHealthCheckHandler(t *testing.T) {
-	req, err := http.NewRequest("GET", "/healthz", nil)
-	require.NoError(t, err)
+	gin.SetMode(gin.TestMode)
+
+	router := gin.New()
+	router.GET("/healthz", handlers.HealthCheckHandler)
+
+	req, err := http.NewRequest(http.MethodGet, "/healthz", nil)
+	require.NoError(t, err, "Failed to create request")
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(handlers.HealthCheckHandler)
 
-	handler.ServeHTTP(rr, req)
+	router.ServeHTTP(rr, req)
 
-	// Assert status code
-	assert.Equal(t, http.StatusOK, rr.Code, "handler returned wrong status code")
+	assert.Equal(t, http.StatusOK, rr.Code, "Handler returned wrong status")
 
-	// Assert response body
-	expectedBody := `{"status":"UP"}`
-	assert.JSONEq(t, expectedBody, rr.Body.String(), "handler returned unexpected body")
+	expectedBody := `{"status":"up"}`
+	assert.JSONEq(t, expectedBody, rr.Body.String(), "Handler returned wrong response body")
+
+	assert.Equal(t, "application/json; charset=utf-8", rr.Header().Get("Content-Type"), "Handler returned unexpected content type header")
 }
